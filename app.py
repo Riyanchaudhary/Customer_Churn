@@ -24,6 +24,30 @@ REQUIRED_COLS = [
     "Total Charges",
     "Contract"
 ]
+OPTIONAL_DEFAULTS = {
+    "Gender": "Male",
+    "Senior Citizen": 0,
+    "Partner": "No",
+    "Dependents": "No",
+    "Phone Service": "Yes",
+    "Multiple Lines": "No",
+    "Internet Service": "DSL",
+    "Online Security": "No",
+    "Online Backup": "No",
+    "Device Protection": "No",
+    "Tech Support": "No",
+    "Streaming TV": "No",
+    "Streaming Movies": "No",
+    "Paperless Billing": "Yes",
+    "Payment Method": "Electronic check"
+}
+
+def fill_optional(df):
+    for col, default in OPTIONAL_DEFAULTS.items():
+        if col not in df.columns:
+            df[col] = default
+    return df
+
 def validate_columns(df):
     missing = [col for col in REQUIRED_COLS if col not in df.columns]
 
@@ -71,6 +95,8 @@ def upload():
         return {
             "error": f"Missing required columns: {missing}"
         }
+    # 🔥 NEW STEP
+    df = fill_optional(df)
 
     # Debug output
     print(df.columns)
