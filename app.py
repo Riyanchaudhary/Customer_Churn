@@ -1,8 +1,15 @@
 from flask import Flask, request
 import pandas as pd
 import re
+import joblib
+
+
 
 app = Flask(__name__)
+
+
+model = joblib.load("churn_model.pkl")
+expected_cols = joblib.load("columns.pkl")
 
 # 🔹 NORMALIZE FUNCTION
 def normalize(col):
