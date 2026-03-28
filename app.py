@@ -1,12 +1,42 @@
 from flask import Flask, request
 import pandas as pd
+import re
 
 app = Flask(__name__)
 
+# 🔹 NORMALIZE FUNCTION
+def normalize(col):
+    col = col.lower()
+    col = re.sub(r'[^a-z0-9]', '', col)
+    return col
+
+# 🔹 EXPECTED COLUMN MAP
+EXPECTED_MAP = {
+    "tenuremonths": "Tenure Months",
+    "monthlycharges": "Monthly Charges",
+    "totalcharges": "Total Charges",
+    "contract": "Contract"
+}
+
+# 🔹 COLUMN MAPPING FUNCTION
+def map_columns(df):
+    new_cols = {}
+
+    for col in df.columns:
+        norm = normalize(col)
+
+        if norm in EXPECTED_MAP:
+            new_cols[col] = EXPECTED_MAP[norm]
+
+    df = df.rename(columns=new_cols)
+    return df
+
+# 🔹 HOME ROUTE
 @app.route('/')
 def home():
     return "Server is running"
 
+# 🔹 UPLOAD ROUTE
 @app.route('/upload', methods=['POST'])
 def upload():
     file = request.files['file']
@@ -20,8 +50,15 @@ def upload():
     else:
         return "Unsupported file format"
 
-    # Return preview (first 5 rows)
+    # 🔥 Apply mapping
+    df = map_columns(df)
+
+    # Debug output
+    print(df.columns)
+
+    # Return preview
     return df.head().to_json(orient="records")
 
+# 🔹 RUN APP
 if __name__ == '__main__':
     app.run(debug=True)
