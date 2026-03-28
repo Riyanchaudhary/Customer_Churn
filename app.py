@@ -10,6 +10,7 @@ def normalize(col):
     col = re.sub(r'[^a-z0-9]', '', col)
     return col
 
+
 # 🔹 EXPECTED COLUMN MAP
 EXPECTED_MAP = {
     "tenuremonths": "Tenure Months",
@@ -17,6 +18,19 @@ EXPECTED_MAP = {
     "totalcharges": "Total Charges",
     "contract": "Contract"
 }
+REQUIRED_COLS = [
+    "Tenure Months",
+    "Monthly Charges",
+    "Total Charges",
+    "Contract"
+]
+def validate_columns(df):
+    missing = [col for col in REQUIRED_COLS if col not in df.columns]
+
+    if missing:
+        return False, missing
+
+    return True, None
 
 # 🔹 COLUMN MAPPING FUNCTION
 def map_columns(df):
@@ -52,6 +66,11 @@ def upload():
 
     # 🔥 Apply mapping
     df = map_columns(df)
+    valid, missing = validate_columns(df)
+    if not valid:
+        return {
+            "error": f"Missing required columns: {missing}"
+        }
 
     # Debug output
     print(df.columns)
