@@ -11,11 +11,9 @@ function App() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
 
+  // 🚀 UPLOAD
   const handleUpload = async () => {
-    if (!file) {
-      alert("Please select a file");
-      return;
-    }
+    if (!file) return alert("Please select a file");
 
     const formData = new FormData();
     formData.append("file", file);
@@ -32,22 +30,22 @@ function App() {
       setData(result);
     } catch (err) {
       console.error(err);
-      alert("Failed to connect to backend");
+      alert("Backend connection failed");
     }
   };
 
-  // 🔍 FILTERING
+  // 🔍 FILTER
   const filteredData = data.filter((row) => {
-    const matchSearch = JSON.stringify(row)
+    const searchMatch = JSON.stringify(row)
       .toLowerCase()
       .includes(search.toLowerCase());
 
-    const matchFilter = filter === "All" ? true : row.Risk === filter;
+    const filterMatch = filter === "All" ? true : row.Risk === filter;
 
-    return matchSearch && matchFilter;
+    return searchMatch && filterMatch;
   });
 
-  // 📊 KPI COUNT
+  // 📊 KPI
   const count = (type) => data.filter((d) => d.Risk === type).length;
 
   const avgChurn =
@@ -55,7 +53,7 @@ function App() {
       ? (
           data.reduce(
             (sum, d) => sum + Number(d["Churn Probability"] || 0),
-            0,
+            0
           ) / data.length
         ).toFixed(2)
       : 0;
@@ -87,7 +85,9 @@ function App() {
     const rows = data.map((obj) => headers.map((h) => obj[h]));
 
     const csv =
-      headers.join(",") + "\n" + rows.map((row) => row.join(",")).join("\n");
+      headers.join(",") +
+      "\n" +
+      rows.map((row) => row.join(",")).join("\n");
 
     const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
@@ -98,52 +98,63 @@ function App() {
     a.click();
   };
 
-  // 🧠 EXPLAINABILITY (BASIC)
+  // 🧠 REASON
   const getReason = (row) => {
     const prob = Number(row["Churn Probability"]) || 0;
 
-    if (prob > 0.7) return "High probability of churn";
+    if (prob > 0.7) return "High churn risk";
     if (prob > 0.4) return "Moderate churn risk";
     return "Low churn risk";
   };
 
   return (
     <div className="container">
-      <h1>Churn Analytics</h1>
-      <p className="subtitle">
-        Upload customer data, predict churn risk, and take action.
-      </p>
+      {/* HEADER */}
+      <div className="header">
+        <div>
+          <h1>Churn Analytics</h1>
+          <p className="subtitle">
+            Predict customer churn and take action
+          </p>
+        </div>
 
-      {/* 🔼 UPLOAD */}
-      <div className="top-bar">
-        <input type="file" onChange={(e) => setFile(e.target.files[0])} />
-        <button onClick={handleUpload}>Run Prediction</button>
+        <div className="top-bar">
+          <input
+            type="file"
+            onChange={(e) => setFile(e.target.files[0])}
+          />
+          <button onClick={handleUpload}>Run</button>
+          <button onClick={downloadCSV}>Download</button>
+        </div>
       </div>
 
-      {/* 📊 KPI CARDS */}
+      {/* KPI */}
       <div className="cards">
         <div className="card">
           <h4>Avg Churn</h4>
           <p>{avgChurn}</p>
         </div>
+
         <div className="card high">
           <h4>High Risk</h4>
           <p>{count("High Risk")}</p>
         </div>
+
         <div className="card medium">
           <h4>Medium Risk</h4>
           <p>{count("Medium Risk")}</p>
         </div>
+
         <div className="card low">
           <h4>Low Risk</h4>
           <p>{count("Low Risk")}</p>
         </div>
       </div>
 
-      {/* 🔍 SEARCH + FILTER */}
+      {/* CONTROLS */}
       <div className="controls">
         <input
-          placeholder="Search..."
+          placeholder="Search customers..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
@@ -161,47 +172,54 @@ function App() {
         </div>
       </div>
 
-      {/* 📊 CHART */}
-      <div className="chart-box">
-        <h3>Risk Distribution</h3>
-        <Doughnut data={chartData} />
-      </div>
+      {/* MAIN GRID (LANDSCAPE) */}
+      <div className="dashboard">
+        {/* CHART */}
+        <div className="chart-box">
+          <h3>Risk Distribution</h3>
+          <Doughnut data={chartData} />
+        </div>
 
-      {/* 📊 TABLE */}
-      <div className="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>Churn %</th>
-              <th>Risk</th>
-              <th>Action</th>
-              <th>Reason</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredData.map((row, i) => {
-              const prob = Number(row["Churn Probability"]) || 0;
+        {/* TABLE */}
+        <div className="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Churn %</th>
+                <th>Risk</th>
+                <th>Action</th>
+                <th>Reason</th>
+              </tr>
+            </thead>
 
-              return (
-                <tr key={i}>
-                  <td>
-                    <div className="progress">
-                      <div
-                        className="bar"
-                        style={{ width: `${prob * 100}%` }}
-                      ></div>
-                    </div>
-                    {(prob * 100).toFixed(0)}%
-                  </td>
+            <tbody>
+              {filteredData.map((row, i) => {
+                const prob = Number(row["Churn Probability"]) || 0;
 
-                  <td className={getColor(row.Risk)}>{row.Risk}</td>
-                  <td>{row.Action}</td>
-                  <td>{getReason(row)}</td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+                return (
+                  <tr key={i}>
+                    <td>
+                      <div className="progress">
+                        <div
+                          className="bar"
+                          style={{ width: `${prob * 100}%` }}
+                        ></div>
+                      </div>
+                      {(prob * 100).toFixed(0)}%
+                    </td>
+
+                    <td className={getColor(row.Risk)}>
+                      {row.Risk}
+                    </td>
+
+                    <td>{row.Action}</td>
+                    <td>{getReason(row)}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
