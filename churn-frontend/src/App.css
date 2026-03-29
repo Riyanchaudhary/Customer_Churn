@@ -165,3 +165,14 @@ tr {
   background: #14b8a6;
   border-radius: 10px;
 }
+.table-container {
+  max-height: 400px;
+  overflow-y: auto;
+  border-radius: 10px;
+}
+thead {
+  position: sticky;
+  top: 0;
+  background: #111827;
+  z-index: 1;
+}

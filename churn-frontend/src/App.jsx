@@ -111,40 +111,42 @@ function App() {
       </div>
 
       {/* 📊 TABLE */}
-      <table>
-        <thead>
-          <tr>
-            <th>Churn Prob.</th>
-            <th>Risk</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredData.map((row, i) => {
-            const prob = Number(row["Churn Probability"]) || 0; // 🔥 FIX
+      <div className="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Churn Prob.</th>
+              <th>Risk</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredData.map((row, i) => {
+              const prob = Number(row["Churn Probability"]) || 0; // 🔥 FIX
 
-            return (
-              <tr key={i}>
-                <td>
-                  <div className="progress">
-                    <div
-                      className="bar"
-                      style={{
-                        width: `${prob * 100}%`,
-                      }}
-                    ></div>
-                  </div>
-                  {(prob * 100).toFixed(0)}%
-                </td>
+              return (
+                <tr key={i}>
+                  <td>
+                    <div className="progress">
+                      <div
+                        className="bar"
+                        style={{
+                          width: `${prob * 100}%`,
+                        }}
+                      ></div>
+                    </div>
+                    {(prob * 100).toFixed(0)}%
+                  </td>
 
-                <td className={getColor(row.Risk)}>{row.Risk}</td>
+                  <td className={getColor(row.Risk)}>{row.Risk}</td>
 
-                <td>{row.Action}</td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+                  <td>{row.Action}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
