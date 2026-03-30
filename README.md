@@ -3,7 +3,7 @@
 A full-stack machine learning application that predicts customer churn from raw user-uploaded datasets and presents actionable insights through an interactive dashboard.
 
 ---
-
+link - https://customer-churn-638v.vercel.app/
 # 📌 Project Objective
 
 The goal of this project is to simulate a **real-world business scenario** where companies want to identify customers likely to churn and take proactive actions to retain them.
